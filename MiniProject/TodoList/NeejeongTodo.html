@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <title>&#10004; To-do List</title>
+</head>
+
+<body>
+    <h1>&#10004; Gabozago </h1>
+    <input type="text" placeholder="할 일을 추가해보세요">
+    <button class="add-btn">&#10133;</button>
+    <button class="save-btn">&#128190;</button>
+    <br>
+    로컬 데이터 불러오기 : <button class="read-btn">&#128260;</button>
+    로컬 데이터 삭제 : <button class="alldel-btn">&#128465;</button>
+    <h2>------------------------------------------------------</h2>
+    <ul></ul>
+    <h2>---------------------이전 To-do---------------------</h2>
+    <ul class="prevData">
+
+    </ul>
+
+
+    <script>
+        // 1. 할 일 추가
+        // 가져와야 할 것: 추가할 일(text), 버튼(.add-btn)
+        const input = document.querySelector("input");
+        const addBtn = document.querySelector(".add-btn");
+        const saveBtn = document.querySelector(".save-btn")
+        const readBtn = document.querySelector(".read-btn")
+        const alldelBtn = document.querySelector(".alldel-btn")
+
+        addBtn.addEventListener("click", addList);
+        function addList() {
+            const txt = input.value;
+            if (txt.trim()) { // 공백은 false니까 공백이 아닐때만 코드 수행
+
+                // 추가되는 데이터의 틀은 체크박스 + span<txt> + 제거버튼
+                // (1) 체크박스 
+                const check = document.createElement("input");
+                check.type = "checkbox";
+                // (2) txt span에 넣은 text
+                const spantxt = document.createElement("span")
+                spantxt.className = "text"
+                spantxt.innerText = txt;
+                // (3) 제거버튼
+                const delBtn = document.createElement("button");
+                delBtn.innerHTML = "&#x2796;";
+                delBtn.style.marginLeft = "10px"
+                // delBtn.style.width="30px"
+                // delBtn.style.height="25px"
+
+                // 데이터에 (1),(2),(3) 추가
+                const data = document.createElement("div")
+                data.appendChild(check);
+                data.appendChild(spantxt);
+                data.appendChild(delBtn);
+                data.style.marginBottom = "10px"
+
+                // 만들어진 data를 ul태그에 추가
+                const ul = document.querySelector("ul");
+                ul.appendChild(data);
+                // data를 만들었으면 새로 입력되는 input 빈문자열로 만들기
+                input.value = "";
+
+                // 2. delBtn이 눌리면 제거됨
+                delBtn.addEventListener("click", function (delList) {
+                    data.remove();
+                })
+
+                // 3. 체크박스가 체크되면 취소선 효과
+                check.addEventListener("click", function (event) {
+                    data.style.textDecoration = event.target.checked ? "Line-through" : "";
+                    data.style.textDecorationColor = event.target.checked ? "dodgerblue" : "";
+                    data.style.color = event.target.checked ? "mediumpurple" : "";
+                })
+
+            }
+        }
+        // + 엔터키로 입력받기
+        addBtn.addEventListener("click", addList);
+        input.addEventListener("keyup", function (event) {
+            if (event.code === "Enter") addList();
+        })
+
+        // 저장
+        let dataArr = [];
+        saveBtn.addEventListener("click", function (event) {
+            let jsonData = localStorage.getItem("data");
+            let textData = document.querySelectorAll("span");
+            for (let i = 0; i < textData.length; i++) {
+                dataArr.push(textData[i].textContent)
+            }
+            if (!(jsonData === null)) {
+                localStorage.setItem("data", JSON.stringify(dataArr));
+                dataArr = [];
+            }
+        })
+
+        // 조회
+        readBtn.addEventListener("click", function (event) {
+
+            let tmpData = []
+            let prevData = document.querySelector(".prevData")
+            let jsonData = localStorage.getItem("data");
+            tmpData = JSON.parse(jsonData); //배열
+            if (!(jsonData == null)) {
+                for (let i = 0; i < tmpData.length; i++) {
+                    let li = document.createElement("li");
+                    prevData.appendChild(li);
+                    li.innerText = tmpData[i];
+                }
+            }
+        })
+        // 로컬 삭제
+        alldelBtn.addEventListener("click", function (event) {
+            localStorage.removeItem("data")
+        })
+
+    </script>
+
+</body>
+
+</html>
